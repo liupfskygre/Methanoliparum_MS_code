@@ -1,4 +1,4 @@
-#16S extraction and assignment from metagenomic data
+## 16S extraction and assignment from metagenomic data
 ```
 kraken2-build --db /software/kraken2_db/silva_db --special silva
 kraken2 --db /software/kraken2_db/silva_db/16S_SILVA138_k2db  --paired --classified-out cseqs#.fq 1.clean.fq 2.clean.fq
