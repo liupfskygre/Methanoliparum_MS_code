@@ -1,4 +1,6 @@
-## 16S extraction and assignment from metagenomic data
+# 16S rRNA analysis
+
+## 16S rRNA extraction and assignment from metagenomic data
 
 ```
 kraken2-build --db /software/kraken2_db/silva_db --special silva
