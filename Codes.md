@@ -118,3 +118,10 @@ bwa mem -t 32 ref_mcrA.fna 1.clean.fq 2.clean.fq > scaffold.sam 2> scaffold.log
 perl /scripts/SeqTools/length+GC.pl -f ref_mcrA.fna -len | sed 's/\s.*\t/\t/' | sed 's/\t/\t0\t/' > scaffold.bed
 bedtools coverage -abam all_sort.bam -b scaffold.bed -counts > scaffold.bamstat
 ```
+
+*notes*
+```
+all in-house scripts used are avaiable upon request.
+contacts: Cuijing Zhang, zhangcj@szu.edu.cn
+```
+
