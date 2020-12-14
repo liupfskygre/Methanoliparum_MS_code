@@ -1,4 +1,4 @@
-# Similarity of 47 MAGs belonging to ‘Ca. Methanoliparia’
+# Similarity MAGs 
 
 ## 16S rRNA gene sequence identity calculation
 
@@ -57,7 +57,7 @@ muscle -in combined_mcrA.faa -out aligned_combined_mcrA.faa
 /tools/iqtree/bin/iqtree-omp -s aligned_combined_mcrA.faa -nt 32 -m WAG -bb 1000
 ```
 
-# Evaluation of the relative abundance and activity of ‘Ca. Methanoliparum’
+# Evaluation of the relative abundance and activity
 
 ## 16S rRNA gene sequences extraction and assignment from metagenomic data
 
@@ -80,7 +80,7 @@ perl /scripts/SeqTools/length+GC.pl -f dRepMAGs.fa -len | sed 's/\s.*\t/\t/' | s
 bedtools coverage -abam all_sort.bam -b scaffold.bed -counts > scaffold.bamstat
 ```
 
-## Expression activity of all annoted genes of four ‘Ca. Methanoliparum’ representative MAGs
+## Expression activity of all annoted genes of four representative MAGs
 
 ```
 prodigal -f gff -i four_rep_MAGs.fasta -o four_rep_MAGs.fasta.gff -p meta -a four_rep_MAGs.faa -d four_rep_MAGs.fna
