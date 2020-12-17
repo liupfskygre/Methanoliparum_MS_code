@@ -1,3 +1,104 @@
+# Qiime pipeline
+
+## Step 1. Quality control
+
+```
+python ~/contqual.py -i raw.fastq -o good/1.fastq -q 10 -l 200;
+```
+
+## Step 2. Fastq is converted to fasta and qual
+
+```
+convert_fastaqual_fastq.py -c fastq_to_fastaqual -f 1-165.fastq;
+```
+
+## Step 3. Rename files
+
+```
+python ~/rename_fasta.py -i 1-165.fna -o 1-165.fasta -n 1-165;
+```
+
+## Step 4. Remove chimeras
+
+```
+usearch8 -uchime_ref 1-165.fasta -db ~/gold.fasta -strand plus -nonchimeras nonchimeras-1-165.fasta;
+```
+
+## Step 5. Redraw sample
+
+```
+perl ~/daisychopper.pl -fastaDir nonchimera -fastaSelect random -v;
+```
+
+## Step 6. OTU clustering, selection of representative sequences, OTU species annotation
+
+```
+cat *.fasta > readsresamples.fasta;
+pick_otus.py -i readsresamples.fasta -m uclust -o uclust_picked_otus/ -n 100;
+pick_rep_set.py -i uclust_picked_otus/readsresamples_otus.txt -f readsresamples.fasta -o rep.fasta;assign_taxonomy.py -i rep.fasta -m uclust -ouclust_assigned_taxonomy -r ~/gg_13_8_otus/rep_set/97_otus.fasta -t ~/gg_13_8_otus/taxonomy/97_otu_taxonomy_rdp.txt;make_otu_table.py -i uclust_picked_otus/readsresamples_otus.txt -t uclust_assigned_taxonomy/rep_tax_assignments.txt -o otu_table.biom;filter_otus_from_otu_table.py -i otu_table.biom -o otu_table_2.biom -n 2;biom convert -i otu_table_2.biom -o otu_table.txt -b --header-key taxonomy --table-type "OTU table";summarize_taxa_through_plots.py -i otu_table_2.biom -o taxa_summary
+```
+
+# Metagenomic analysis for single sample each time
+
+## Step 1. Trimming sequences
+
+```
+java -jar ~/Trimmomatic-0.38/trimmomatic-0.38.jar PE raw_data1/2 output_forward/reverse_paired.fq.gz
+output_forward/reverse_unpaired.fq.gz ILLUMINACLIP:TruSeq3-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36;
+```
+
+## Step 2. Assembly
+
+```
+python ~/SPAdes-3.12.0-Linux/bin/spades.py --meta -k 21,33,55,77 -t 10 -1 output_forward_paired.fq.gz -2 
+output_reverse_paired.fq.gz -o spa_res;
+```
+
+## Step 3. Metadata geneprediction
+
+```
+prodigal -i scaffold.fasta -a prot.fasta -d nucl.fasta-p meta -q;
+```
+
+## Step 4. Binning
+
+### Step 4.1. Mapping
+
+```
+~bbmap.sh ref=scaffold.fasta
+in=output_forward_paired.fq.gz in2=output_reverse_paired.fq.gz out=scaffold.sam nodisk unpigz=t minid=0.99 threads=10 pigz=t covstats=samp.bbmap.cov -Xmx100g;
+```
+
+### Step 4.2. Sorting
+
+```
+~/samtools view -bShu scaffold.sam| ~samtools sort -m 20G -@ 3 - -o scaffold_sorted.bam;
+```
+
+### Step 4.3. Depth calculation
+
+```
+jgi_summarize_bam_contig_depths --outputDepth scaffold_depth.txt scaffold_sorted.bam;
+```
+
+### Step 4.4 binning
+
+```
+metabat2 -i scaffold.fasta -a scaffold_depth.txt -o Binning/bin;
+```
+
+## Step 5. genome bins summary
+
+```
+checkm lineage_wf -x fa -t 40 checkm_res;
+```
+
+## Step 6. gtdbtk taxnomy
+
+```
+gtdbtk classify_wf --genome_dir gtdbtk_test/genomes --out_dir gtdbtk_test/output --cpus 10;
+```
+
 # Similarity MAGs 
 
 ## 16S rRNA gene sequence identity calculation
